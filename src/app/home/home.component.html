@@ -1,1 +1,161 @@
-<p>home works!</p>
+<!-- haeder for employeeForm data -->
+<div>
+    <mat-toolbar color="primary">
+        <span>Dock Tale Demo</span>
+        <span class="example-spacer"></span>
+        <button mat-raised-button color="accent" class="search-cls" (click)="openEmployeesForm()">
+            <mat-icon>
+                add
+            </mat-icon>Add Employees
+        </button>
+    </mat-toolbar>
+</div>
+
+<!-- employeeForm table data -->
+<div class="main-bg" *ngIf="!addForm">
+    <mat-accordion class="example-headers-align" multi>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header class="bg-color">
+                <mat-panel-title>
+                    Employees Filter
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="searchForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="exampleInputEmail1" class="form-label">Salary Amount</label>
+                        <input type="number" class="form-control" id="exampleInputEmail1"placeHolder = "Enter salary amount" formControlName="salaryAmount" >
+                    </div>
+    
+                    <div class="col-md-6">
+                        <label for="exampleInputPassword1" class="form-label">Departments </label>
+                        <select class="form-control" formControlName="departmentWiseData">
+                            <option disabled value="">Please select department</option>
+                            <option *ngFor="let dept of Departments;let i=index;" [value]="dept.name">
+                                {{dept.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </form> 
+
+
+            <div class="btn-cls">
+                <button mat-raised-button color="primary" class="search-cls" (click) = "searchEmployeeData()">
+                    <mat-icon>
+                        search
+                    </mat-icon>Search
+                </button>
+                <button mat-raised-button color="warn" (click) = "clearEmployeeData()">
+                    <mat-icon>
+                        find_replace
+                    </mat-icon>Clear Search
+                </button>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+    <div>
+        <mat-table #table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+            <ng-container matColumnDef="position">
+                <mat-header-cell mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+                <mat-cell mat-cell *matCellDef="let element;let i = index"> {{i + 1}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+                <mat-header-cell mat-header-cell *matHeaderCellDef> Employees Name </mat-header-cell>
+                <mat-cell mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="department">
+                <mat-header-cell mat-header-cell *matHeaderCellDef> Departments </mat-header-cell>
+                <mat-cell mat-cell *matCellDef="let element"> {{element.department}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="salary">
+                <mat-header-cell mat-header-cell *matHeaderCellDef> Salary </mat-header-cell>
+                <mat-cell mat-cell *matCellDef="let element"> {{element.salary}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+                <mat-header-cell *matHeaderCellDef>
+                    Action
+                </mat-header-cell>
+                <mat-cell *matCellDef="let element; let i=index;">
+                    <button mat-icon-button color="accent" (click)="editEmployeeData(element , i+1)" matTooltip="edit">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="accent" (click)="deleteEmployeeData(element , i+1)"
+                        matTooltip="delete">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+        <div *ngIf="dataSource.length == 0" class="no-cls">
+            <h4>No record found...</h4>
+        </div>
+        <mat-paginator #paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" [showFirstLastButtons]="true"
+            [length]="totalSize" [pageIndex]="currentPage" (page)="pageEvent = handlePage($event)">
+        </mat-paginator>
+    </div>
+</div>
+
+<!-- add employeeForm data -->
+<div *ngIf="addForm">
+    <form [formGroup]="employeeForm">
+        <div class="row m-2">
+            <div class="col-md-6">
+                <label for="exampleInputEmail1" class="form-label">Employees Name</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" formControlName="name" required>
+                <mat-error *ngIf="submitted && employeeForm.controls['name'].hasError('required')">Employee name is
+                    required</mat-error>
+            </div>
+            <div class="col-md-6">
+                <label for="exampleInputPassword1" class="form-label">Departments </label>
+                <select class="form-control" formControlName="department">
+                    <option disabled value="">Please select department</option>
+                    <option *ngFor="let dept of Departments;let i=index;" [value]="dept.name">
+                        {{dept.name}}
+                    </option>
+                </select>
+                <mat-error *ngIf="submitted && employeeForm.controls['department'].hasError('required')">Department name
+                    is required</mat-error>
+            </div>
+        </div>
+
+        <div class="row m-2">
+            <div class="col-md-6">
+                <label for="exampleInputPassword1" class="form-label">Salary </label>
+                <input type="number" class="form-control" id="exampleInputPassword1" formControlName="salary" required>
+                <mat-error *ngIf="submitted && employeeForm.controls['salary'].hasError('required')">Salary is required
+                </mat-error>
+            </div>
+            <div class="col-md-6 ">
+                <button type="submit" class="btn btn-danger sub-cls" (click)="openEmployeesForm()">
+                    <span class="close-cls">
+                        <mat-icon>
+                            close
+                        </mat-icon>
+                        <p class="update-cls">
+                            Cancel
+                        </p>
+
+                    </span>
+                </button>
+                <button type="submit" class="btn btn-primary sub-cls" (click)="addEmployeesForm()">
+                    <span class="close-cls">
+                        <mat-icon>
+                            {{editId == false ? 'add' : 'update'}}
+                        </mat-icon>
+                        <p class="update-cls">
+                            {{editId == false ? 'Add Employee' : 'update Employee'}}
+                        </p>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
